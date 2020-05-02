@@ -1,7 +1,7 @@
 .PHONY: test pycodestyle venv run
 
 run:
-	.venv/bin/python3 table_top.py
+	PORT=8080 .venv/bin/python3 table_top.py
 
 test:
 	.venv/bin/python3 -m unittest discover -b

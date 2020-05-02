@@ -10,6 +10,7 @@ from geventwebsocket import WebSocketServer
 from geventwebsocket.handler import WebSocketHandler
 
 import json
+import os
 import room
 
 
@@ -50,7 +51,7 @@ def handle_websocket():
             break
 
 
-server = WSGIServer(("0.0.0.0", 8080),
+server = WSGIServer(("0.0.0.0", int(os.environ['PORT'])),
                     app,
                     handler_class=WebSocketHandler)
 server.serve_forever()
