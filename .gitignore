@@ -1,2 +1,8 @@
+### python ###
 .venv
 
+### vs code ###
+settings.json
+
+### macos ###
+.DS_Store
