@@ -6,7 +6,7 @@ run:
 test:
 	.venv/bin/python3 -m unittest discover -b
 
-pycodestyle:
+lint:
 	.venv/bin/pycodestyle --exclude=.venv --max-line-length=100 .
 
 venv:

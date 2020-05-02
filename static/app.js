@@ -25,15 +25,18 @@ $(document).ready(function() {
 
         $("#startCreateGame").on('click', function(e) {
             e.preventDefault();
-            var userName = $("#startCreateUserName").val();
-            var queryString = "create&userName=" + userName;
-            var ws = createWebSocket(queryString);
-            $("#startAccordion").hide();
+
+
+            var ws = createWebSocket();
+            ws.onopen = function(e) {
+                ws.send(JSON.stringify({"action": "create", "name": $("#startCreateUserName").val()}));
+                $("#startAccordion").hide();
+            }
         })
 
-        function createWebSocket(queryString) {
+        function createWebSocket() {
             var protocol = window.location.protocol == "https:" ? "wss" : "ws";
-            var url = protocol + "://" + window.location.host + "/websocket?" + queryString;
+            var url = protocol + "://" + window.location.host + "/websocket";
             return new WebSocket(url);
         }
     });
