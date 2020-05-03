@@ -51,7 +51,7 @@ def handle_websocket():
             break
 
 
-server = WSGIServer(("0.0.0.0", int(os.environ['PORT'])),
-                    app,
-                    handler_class=WebSocketHandler)
+server = WebSocketServer(("0.0.0.0", int(os.environ['PORT'])),
+                         app,
+                         debug=True)
 server.serve_forever()
