@@ -52,6 +52,5 @@ def handle_websocket():
 
 
 server = WebSocketServer(("0.0.0.0", int(os.environ['PORT'])),
-                         app,
-                         debug=True)
+                         app)
 server.serve_forever()
