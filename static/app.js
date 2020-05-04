@@ -23,20 +23,25 @@ $(document).ready(function() {
             return new WebSocket(url);
         }*/
 
-        $("#startCreateGame").on('click', function(e) {
-            e.preventDefault();
+    $("#startCreateGame").on('click', function(e) {
+        e.preventDefault();
 
 
-            var ws = createWebSocket();
-            ws.onopen = function(e) {
-                ws.send(JSON.stringify({"action": "create", "name": $("#startCreateUserName").val()}));
-                $("#startAccordion").hide();
+        var ws = createWebSocket();
+        ws.onopen = function() {
+            ws.send(JSON.stringify({"action": "create", "name": $("#startCreateUserName").val()}));
+            $("#startAccordion").hide();
+
+            ws.onmessage = function(evt) {
+                var msg = JSON.parse(evt.data);
+                alert(msg.room);
             }
-        })
-
-        function createWebSocket() {
-            var protocol = window.location.protocol == "https:" ? "wss" : "ws";
-            var url = protocol + "://" + window.location.host + "/websocket";
-            return new WebSocket(url);
         }
-    });
+    })
+
+    function createWebSocket() {
+        var protocol = window.location.protocol == "https:" ? "wss" : "ws";
+        var url = protocol + "://" + window.location.host + "/websocket";
+        return new WebSocket(url);
+    }
+});

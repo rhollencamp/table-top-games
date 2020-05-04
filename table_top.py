@@ -1,16 +1,14 @@
+import json
+import os
+
 from bottle import abort
 from bottle import request
 from bottle import static_file
 from bottle import template
 from bottle import Bottle
-from gevent.pywsgi import WSGIServer
-from geventwebsocket import Resource
 from geventwebsocket import WebSocketError
 from geventwebsocket import WebSocketServer
-from geventwebsocket.handler import WebSocketHandler
 
-import json
-import os
 import room
 
 
@@ -35,9 +33,9 @@ def handle_websocket():
 
     # need to get a message either creating a room or joining a room
     msg = json.loads(wsock.receive())
-    if "create" == msg['action']:
+    if msg['action'] == "create":
         room.create_room(msg, wsock)
-    elif "join" == msg['action']:
+    elif msg['action'] == "join":
         room.join_room(msg, wsock)
     else:
         wsock.close()
