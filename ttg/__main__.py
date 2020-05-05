@@ -15,9 +15,9 @@ from ttg import room
 app = Bottle()
 
 
-@app.get("/")
+@app.get('/')
 def index():
-    return template("index")
+    return template('index')
 
 
 @app.route('/static/<filename>')
@@ -33,9 +33,9 @@ def handle_websocket():
 
     # need to get a message either creating a room or joining a room
     msg = json.loads(wsock.receive())
-    if msg['action'] == "create":
+    if msg['msg'] == 'create-game':
         room.create_room(msg, wsock)
-    elif msg['action'] == "join":
+    elif msg['msg'] == 'join-game':
         room.join_room(msg, wsock)
     else:
         wsock.close()
@@ -49,6 +49,6 @@ def handle_websocket():
             break
 
 
-server = WebSocketServer(("0.0.0.0", int(os.environ['PORT'])),
+server = WebSocketServer(('0.0.0.0', int(os.environ['PORT'])),
                          app)
 server.serve_forever()

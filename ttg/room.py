@@ -10,8 +10,7 @@ _room_lock = Lock()
 
 
 def create_room(msg, wsock: WebSocket):
-    _room_lock.acquire()
-    try:
+    with _room_lock:
         # generate a unique room code
         room_code = _generate_room_code()
         while room_code in _rooms:
@@ -21,15 +20,12 @@ def create_room(msg, wsock: WebSocket):
         _rooms[room_code] = room
 
         room.add_player(msg['name'], wsock)
-    finally:
-        _room_lock.release()
 
-    wsock.send(json.dumps({"room": room_code}))
+    wsock.send(json.dumps({'room': room_code}))
 
 
 def join_room(msg, wsock: WebSocket):
-    _room_lock.acquire()
-    try:
+    with _room_lock:
         room_code = msg['room']
         room = _rooms[room_code]
         if not room:
@@ -40,8 +36,6 @@ def join_room(msg, wsock: WebSocket):
             raise ValueError('Player already in room')
 
         room.add_player(name, wsock)
-    finally:
-        _room_lock.release()
 
 
 def _generate_room_code():
