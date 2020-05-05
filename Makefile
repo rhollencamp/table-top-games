@@ -1,15 +1,11 @@
 .PHONY: run test lint venv
 
 run:
-	PORT=8080 .venv/bin/python3 table_top.py
+	PORT=8080 python3 -m ttg
 
 test:
-	.venv/bin/python3 -m unittest discover -b
+	python3 -m unittest
 
 lint:
-	.venv/bin/pycodestyle *.py
-	.venv/bin/pylint *.py
-
-venv:
-	python3 -m venv .venv
-	.venv/bin/pip3 install -r requirements.txt
+	pycodestyle ttg/*.py tests/*.py
+	pylint ttg/*.py tests/*.py

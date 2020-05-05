@@ -9,7 +9,7 @@ from bottle import Bottle
 from geventwebsocket import WebSocketError
 from geventwebsocket import WebSocketServer
 
-import room
+from ttg import room
 
 
 app = Bottle()

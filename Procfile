@@ -1,1 +1,1 @@
-web: python3 table_top.py
+web: python3 -m ttg
