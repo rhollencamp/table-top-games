@@ -9,71 +9,76 @@
     <link rel="icon" href="/static/favicon.svg" sizes="any" type="image/svg+xml">
 </head>
 <body>
-<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-5">
-    <a class="navbar-brand" href="/">Table-Top.games</a>
-</nav>
 
-<div class="container accordion" id="startAccordion">
-    <div class="card">
-        <div class="card-header" id="startCreateGameHeading">
-            <h2 class="mb-0">
-                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#startCreateGameBody" aria-expanded="true" aria-controls="startCreateGameBody">
-                    Create A Room
-                </button>
-            </h2>
-        </div>
-        <div id="startCreateGameBody" class="collapse" aria-labelledby="startCreateGameHeading" data-parent="#startAccordion">
-            <div class="card-body">
-                <form>
-                    <div class="form-group">
-                        <label for="startCreateUserName">Name</label>
-                        <input type="text" class="form-control" id="startCreateUserName">
-                    </div>
-                    <button type="submit" class="btn btn-primary" id="startCreateGame">Play</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header" id="startJoinGameHeading">
-            <h2 class="mb-0">
-                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#startJoinGameBody" aria-expanded="false" aria-controls="startJoinGameBody">
-                    Join A Room
-                </button>
-            </h2>
-        </div>
-        <div id="startJoinGameBody" class="collapse" aria-labelledby="startJoinGameHeading" data-parent="#startAccordion">
-            <div class="card-body">
-                <form>
-                    <div class="form-group">
-                        <label for="startJoinUserName">Name</label>
-                        <input type="text" class="form-control" id="startJoinUserName">
-                    </div>
-                    <div class="form-group">
-                        <label for="startJoinRoomCode">Room Code</label>
-                        <input type="text" class="form-control" id="startJoinRoomCode">
-                    </div>
-                    <button type="submit" class="btn btn-primary" id="startJoinGame">Play</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="container-fluid h-100 d-flex flex-column" style="padding: 0;">
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-5 flex-shrink-0">
+        <a class="navbar-brand" href="/">Table-Top.games</a>
+    </nav>
 
-<div class="container-fluid" id="playingArea" style="display: none;">
-    <div class="row">
-        <div class="col">
+    <div class="row flex-grow-1" style="margin: 0;">
+        <div class="container accordion" id="startAccordion">
             <div class="card">
-                <div id="roomCode" class="card-header">Room Code: ABC123</div>
-                <div class="card-body">
-                    Hello World
+                <div class="card-header" id="startCreateGameHeading">
+                    <h2 class="mb-0">
+                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#startCreateGameBody" aria-expanded="true" aria-controls="startCreateGameBody">
+                            Create A Room
+                        </button>
+                    </h2>
+                </div>
+                <div id="startCreateGameBody" class="collapse" aria-labelledby="startCreateGameHeading" data-parent="#startAccordion">
+                    <div class="card-body">
+                        <form>
+                            <div class="form-group">
+                                <label for="startCreateUserName">Name</label>
+                                <input type="text" class="form-control" id="startCreateUserName">
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="startCreateGame">Play</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="startJoinGameHeading">
+                    <h2 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#startJoinGameBody" aria-expanded="false" aria-controls="startJoinGameBody">
+                            Join A Room
+                        </button>
+                    </h2>
+                </div>
+                <div id="startJoinGameBody" class="collapse" aria-labelledby="startJoinGameHeading" data-parent="#startAccordion">
+                    <div class="card-body">
+                        <form>
+                            <div class="form-group">
+                                <label for="startJoinUserName">Name</label>
+                                <input type="text" class="form-control" id="startJoinUserName">
+                            </div>
+                            <div class="form-group">
+                                <label for="startJoinRoomCode">Room Code</label>
+                                <input type="text" class="form-control" id="startJoinRoomCode">
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="startJoinGame">Play</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-2">
-            <div class="card">
-                <div class="card-header">Players</div>
-                <ul id="playerList" class="list-group list-group-flush"></ul>
+
+        <div class="container-fluid" id="playingArea" style="display: none; height: calc(100% - 1rem);">
+            <div class="row h-100">
+                <div class="col h-100">
+                    <div class="card h-100">
+                        <div id="roomCode" class="card-header">Room Code: ABC123</div>
+                        <div class="card-body">
+                            TODO game goes here :)
+                        </div>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="card">
+                        <div class="card-header">Players</div>
+                        <ul id="playerList" class="list-group list-group-flush"></ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
