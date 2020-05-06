@@ -13,7 +13,7 @@ $(document).ready(function() {
             ws.onmessage = function(evt) {
                 addPlayer($("#startCreateUserName").val());
                 var msg = JSON.parse(evt.data);
-                alert(msg.room);
+                $("#roomCode").html("Room Code: " + msg.room);
 
                 ws.onmessage = onMsg;
             }
@@ -32,6 +32,7 @@ $(document).ready(function() {
             }));
             $("#startAccordion").hide();
             $("#playingArea").show();
+            $("#roomCode").html("Room Code: " + $("#startJoinRoomCode").val());
 
             ws.onmessage = onMsg;
         }

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Table-Top.games</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/ttg.css">
     <link rel="icon" href="/static/favicon.svg" sizes="any" type="image/svg+xml">
 </head>
 <body>
@@ -62,15 +63,17 @@
 <div class="container-fluid" id="playingArea" style="display: none;">
     <div class="row">
         <div class="col">
-            <p>todo playing area</p>
+            <div class="card">
+                <div id="roomCode" class="card-header">Room Code: ABC123</div>
+                <div class="card-body">
+                    Hello World
+                </div>
+            </div>
         </div>
         <div class="col-2">
             <div class="card">
                 <div class="card-header">Players</div>
                 <ul id="playerList" class="list-group list-group-flush"></ul>
-                <!--<div class="card-body">
-                    TODO
-                </div>-->
             </div>
         </div>
     </div>

@@ -43,9 +43,9 @@ def handle_websocket():
 
     while True:
         try:
-            message = wsock.receive()
-            wsock.send("Your message was: %r" % message)
+            wsock.receive()
         except WebSocketError:
+            room.leave_room(wsock)
             break
 
 

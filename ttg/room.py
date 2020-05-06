@@ -7,6 +7,7 @@ from geventwebsocket.websocket import WebSocket
 
 _rooms = {}
 _room_lock = Lock()
+_wsock_lookup = {}
 
 
 def create_room(msg, wsock: WebSocket):
@@ -21,6 +22,7 @@ def create_room(msg, wsock: WebSocket):
 
         room.add_player(msg['name'], wsock)
 
+    _wsock_lookup[wsock] = room_code, msg['name']
     wsock.send(json.dumps({'msg': 'room-created', 'room': room_code}))
 
 
@@ -38,7 +40,14 @@ def join_room(msg, wsock: WebSocket):
         room.add_player(name, wsock)
 
     __broadcast_player_list(room.players.items())
+    _wsock_lookup[wsock] = room_code, name
 
+
+def leave_room(wsock: WebSocket):
+    room_code, player_name = _wsock_lookup[wsock]
+    room = _rooms[room_code]
+    room.remove_player(player_name)
+    __broadcast_player_list(room.players.items())
 
 def __broadcast_player_list(players):
     msg = json.dumps({
@@ -61,3 +70,6 @@ class Room:
 
     def add_player(self, name, wsock):
         self.players[name] = wsock
+
+    def remove_player(self, name):
+        self.players.pop(name)
