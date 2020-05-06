@@ -8,10 +8,14 @@ $(document).ready(function() {
         ws.onopen = function() {
             ws.send(JSON.stringify({"msg": "create-game", "name": $("#startCreateUserName").val()}));
             $("#startAccordion").hide();
+            $("#playingArea").show();
 
             ws.onmessage = function(evt) {
+                addPlayer($("#startCreateUserName").val());
                 var msg = JSON.parse(evt.data);
                 alert(msg.room);
+
+                ws.onmessage = onMsg;
             }
         }
     });
@@ -27,11 +31,9 @@ $(document).ready(function() {
                 "room": $("#startJoinRoomCode").val()
             }));
             $("#startAccordion").hide();
+            $("#playingArea").show();
 
-            ws.onmessage = function(evt) {
-                var msg = JSON.parse(evt.data);
-                alert(msg.room);
-            }
+            ws.onmessage = onMsg;
         }
     })
 
@@ -39,5 +41,21 @@ $(document).ready(function() {
         var protocol = window.location.protocol == "https:" ? "wss" : "ws";
         var url = protocol + "://" + window.location.host + "/websocket";
         return new WebSocket(url);
+    }
+
+    function addPlayer(playerName) {
+        $("#playerList").append($("<li class=\"list-group-item\">" + playerName + "</li>"))
+    }
+
+    function resetPlayerList(players) {
+        $("#playerList").empty();
+        players.forEach(addPlayer);
+    }
+
+    function onMsg(evt) {
+        var msg = JSON.parse(evt.data);
+        if (msg["msg"] == "player-list") {
+            resetPlayerList(msg["players"]);
+        }
     }
 });

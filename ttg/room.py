@@ -37,27 +37,17 @@ def join_room(msg, wsock: WebSocket):
 
         room.add_player(name, wsock)
 
-    __broadcast_player_joined_msg(msg['name'], room.players.items())
-    __send_join_success(wsock,
-                        [x for x in room.players if x != msg['name']])
+    __broadcast_player_list(room.players.items())
 
 
-def __broadcast_player_joined_msg(new_player_name, players):
+def __broadcast_player_list(players):
     msg = json.dumps({
-        'msg': 'player-joined',
-        'name': new_player_name
+        'msg': 'player-list',
+        'players': [x for x, _ in players]
     })
-    for player, player_wsock in players:
-        if player != new_player_name:
-            player_wsock.send(msg)
+    for _, player_wsock in players:
+        player_wsock.send(msg)
 
-
-def __send_join_success(wsock, player_list):
-    msg = json.dumps({
-        'msg': 'joined-room',
-        'players': player_list
-    })
-    wsock.send(msg)
 
 def __generate_room_code():
     return ''.join(random.choice(string.ascii_uppercase) for x in range(6))
