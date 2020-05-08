@@ -1,3 +1,7 @@
+"""
+A room represents a game in progress
+"""
+
 import json
 import random
 import string
@@ -5,64 +9,73 @@ import string
 from gevent.threading import Lock
 from geventwebsocket.websocket import WebSocket
 
-_rooms = {}
-_room_lock = Lock()
-_wsock_lookup = {}
+__rooms = {}
+__room_lock = Lock()
+__wsock_lookup = {}
 
 
-def create_room(msg, wsock: WebSocket):
-    with _room_lock:
-        # generate a unique room code
-        room_code = __generate_room_code()
-        while room_code in _rooms:
-            room_code = __generate_room_code()
+def create_room(name: str, wsock: WebSocket):
+    with __room_lock:
+        room_code = __generate_unique_room_code()
 
         room = Room(room_code)
-        _rooms[room_code] = room
+        __rooms[room_code] = room
 
-        room.add_player(msg['name'], wsock)
+        room.add_player(name, wsock)
 
-    _wsock_lookup[wsock] = room_code, msg['name']
+    __wsock_lookup[wsock] = room_code, name
     wsock.send(json.dumps({'msg': 'room-created', 'room': room_code}))
 
 
-def join_room(msg, wsock: WebSocket):
-    with _room_lock:
-        room_code = msg['room']
-        room = _rooms[room_code]
-        if not room:
-            raise ValueError('Room does not exist')
+def join_room(name: str, room_code: str, wsock: WebSocket):
+    with __room_lock:
+        room = __rooms[room_code]
 
-        name = msg['name']
         if name in room.players:
             raise ValueError('Player already in room')
 
         room.add_player(name, wsock)
 
-    __broadcast_player_list(room.players.items())
-    _wsock_lookup[wsock] = room_code, name
+    __broadcast_player_list(room)
+    __wsock_lookup[wsock] = room_code, name
 
 
 def leave_room(wsock: WebSocket):
-    room_code, player_name = _wsock_lookup[wsock]
-    room = _rooms[room_code]
+    room_code, player_name = __wsock_lookup[wsock]
+    room = __rooms[room_code]
     room.remove_player(player_name)
-    __broadcast_player_list(room.players.items())
+    __broadcast_player_list(room)
 
-def __broadcast_player_list(players):
+
+def __broadcast_player_list(room):
     msg = json.dumps({
         'msg': 'player-list',
-        'players': [x for x, _ in players]
+        'players': [x for x, _ in room.players]
     })
-    for _, player_wsock in players:
-        player_wsock.send(msg)
+    room.broadcast(msg)
 
 
-def __generate_room_code():
+def __generate_unique_room_code():
+    """
+    Generate a room code that is unique / not already in use
+    """
+    room_code = __generate_random_code()
+    while room_code in __rooms:
+        room_code = __generate_random_code()
+    return room_code
+
+
+def __generate_random_code():
+    """
+    Generate 6 random characters that can be used as a room code
+    """
     return ''.join(random.choice(string.ascii_uppercase) for x in range(6))
 
 
 class Room:
+    """
+    Represents a game in progress, and all its state
+    """
 
     def __init__(self, room_code):
         self.room_code = room_code
@@ -73,3 +86,7 @@ class Room:
 
     def remove_player(self, name):
         self.players.pop(name)
+
+    def broadcast(self, msg):
+        for _, wsock in self.players:
+            wsock.send(msg)

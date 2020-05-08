@@ -1,3 +1,7 @@
+"""
+Entry point into the application
+"""
+
 import json
 import os
 
@@ -34,9 +38,9 @@ def handle_websocket():
     # need to get a message either creating a room or joining a room
     msg = json.loads(wsock.receive())
     if msg['msg'] == 'create-game':
-        room.create_room(msg, wsock)
+        room.create_room(msg['name'], wsock)
     elif msg['msg'] == 'join-game':
-        room.join_room(msg, wsock)
+        room.join_room(msg['name'], msg['room'], wsock)
     else:
         wsock.close()
         return
