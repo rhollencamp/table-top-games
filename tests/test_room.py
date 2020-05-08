@@ -19,12 +19,42 @@ class TestRoom(TestCase):
         room.create_room('test', wsock_mock)
 
         # verify response was sent to the web socket
-        mock_calls = wsock_mock.method_calls
-        self.assertEqual(1, len(mock_calls))
-        self.assertEqual('send', mock_calls[0][0])
-
-        # verify response contained the right msg and a valid looking room code
-        msg = json.loads(mock_calls[0][1][0])
-        self.assertEqual('room-created', msg['msg'])
+        msg = self.__find_msg(wsock_mock, 'room-created')
+        self.assertIsNotNone(msg)
+        # make sure room code looks sane
         self.assertIsInstance(msg['room'], str)
         self.assertEqual(6, len(msg['room']))
+
+    def test_join_room_player_broadcast(self):
+        """when someone joins a room make sure player list is broadcast"""
+        # setup
+        wsock_foo_mock = Mock()
+        wsock_bar_mock = Mock()
+
+        # methods under test
+        room.create_room('foo', wsock_foo_mock)
+        room_code = self.__extract_room_code(wsock_foo_mock)
+        room.join_room('bar', room_code, wsock_bar_mock)
+
+        # make sure foo got the broadcast
+        msg = self.__find_msg(wsock_foo_mock, 'player-list')
+        self.assertIsNotNone(msg)
+        self.assertEqual(['foo', 'bar'], msg['players'])
+        # make sure bar got the broadcast
+        msg = self.__find_msg(wsock_bar_mock, 'player-list')
+        self.assertIsNotNone(msg)
+        self.assertEqual(['foo', 'bar'], msg['players'])
+
+    @staticmethod
+    def __extract_room_code(mock):
+        msg = mock.send.call_args[0][0]
+        msg = json.loads(msg)
+        return msg['room']
+
+    @staticmethod
+    def __find_msg(mock, msg):
+        for x in mock.send.call_args:
+            x = json.loads(x[0])
+            if x['msg'] == msg:
+                return x
+        return None
