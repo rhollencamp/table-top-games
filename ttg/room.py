@@ -6,35 +6,31 @@ import json
 import random
 import string
 
-from gevent.threading import Lock
 from geventwebsocket.websocket import WebSocket
 
 __rooms = {}
-__room_lock = Lock()
 __wsock_lookup = {}
 
 
 def create_room(name: str, wsock: WebSocket):
-    with __room_lock:
-        room_code = __generate_unique_room_code()
+    room_code = __generate_unique_room_code()
 
-        room = Room(room_code)
-        __rooms[room_code] = room
+    room = Room(room_code)
+    __rooms[room_code] = room
 
-        room.add_player(name, wsock)
+    room.add_player(name, wsock)
 
     __wsock_lookup[wsock] = room_code, name
     wsock.send(json.dumps({'msg': 'room-created', 'room': room_code}))
 
 
 def join_room(name: str, room_code: str, wsock: WebSocket):
-    with __room_lock:
-        room = __rooms[room_code]
+    room = __rooms[room_code]
 
-        if name in room.players:
-            raise ValueError('Player already in room')
+    if name in room.players:
+        raise ValueError('Player already in room')
 
-        room.add_player(name, wsock)
+    room.add_player(name, wsock)
 
     __broadcast_player_list(room)
     __wsock_lookup[wsock] = room_code, name
