@@ -50,7 +50,7 @@ def leave_room(wsock: WebSocket):
 def __broadcast_player_list(room):
     msg = json.dumps({
         'msg': 'player-list',
-        'players': [x for x, _ in room.players]
+        'players': [*room.players]
     })
     room.broadcast(msg)
 
@@ -88,5 +88,5 @@ class Room:
         self.players.pop(name)
 
     def broadcast(self, msg):
-        for _, wsock in self.players:
+        for _, wsock in self.players.items():
             wsock.send(msg)
