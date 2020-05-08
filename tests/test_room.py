@@ -53,8 +53,8 @@ class TestRoom(TestCase):
 
     @staticmethod
     def __find_msg(mock, msg):
-        for x in mock.send.call_args:
-            x = json.loads(x[0])
-            if x['msg'] == msg:
-                return x
+        for call in mock.send.call_args:
+            call_msg = json.loads(call[0])
+            if call_msg['msg'] == msg:
+                return call_msg
         return None
