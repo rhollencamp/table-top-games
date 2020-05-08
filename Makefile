@@ -9,4 +9,4 @@ test:
 lint:
 	pycodestyle ttg/*.py tests/*.py
 	pylint -d C0116 ttg/*.py
-	pylint -d C0116,C0115 tests/*.py
+	pylint -d C0116,C0115,C0114 tests/*.py
