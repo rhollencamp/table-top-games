@@ -1,6 +1,16 @@
 //import { isKeyDown } from "./modules/keyboard.js";
 
 $(document).ready(function() {
+
+    var colorLookup = {
+        1: 'primary',
+        2: 'secondary',
+        3: 'success',
+        4: 'danger',
+        5: 'warning',
+        6: 'info'
+    };
+
     $("#startCreateGame").on('click', function(e) {
         e.preventDefault();
 
@@ -11,7 +21,6 @@ $(document).ready(function() {
             $("#playingArea").show();
 
             ws.onmessage = function(evt) {
-                addPlayer($("#startCreateUserName").val());
                 var msg = JSON.parse(evt.data);
                 $("#roomCode").html("Room Code: " + msg.room);
 
@@ -44,13 +53,15 @@ $(document).ready(function() {
         return new WebSocket(url);
     }
 
-    function addPlayer(playerName) {
-        $("#playerList").append($("<li class=\"list-group-item\">" + playerName + "</li>"))
+    function addPlayer(playerName, color) {
+        $("#playerList").append($("<li class=\"list-group-item text-white fong-weight-bold bg-" + color + "\">" + playerName + "</li>"))
     }
 
     function resetPlayerList(players) {
         $("#playerList").empty();
-        players.forEach(addPlayer);
+        for (let [name, props] of Object.entries(players)) {
+            addPlayer(name, colorLookup[props["color"]]);
+        }
     }
 
     function onMsg(evt) {
