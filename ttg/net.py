@@ -5,6 +5,7 @@ deals with sending and receiving messages on websockets
 """
 
 from collections import defaultdict
+from logging import getLogger
 import json
 
 from geventwebsocket import WebSocketError
@@ -17,13 +18,14 @@ from ttg.room import leave_room
 
 __wsock_lookup = {}
 __rooms = defaultdict(dict)
+__logger = getLogger(__name__)
 
 
 def new_connection_established(wsock):
     """called when a new websocket is opened"""
 
     # first message: are they creating or joining a room
-    msg = json.loads(wsock.receive())
+    msg = __get_json_msg(wsock)
     name = msg['name']
     if msg['msg'] == 'create-game':
         room_code = create_room(name)
@@ -44,10 +46,20 @@ def new_connection_established(wsock):
 
     while True:
         try:
-            wsock.receive()
-        except WebSocketError:
+            msg = __get_json_msg(wsock)
+            if msg is None:
+                __handle_disconnect(wsock)
+                break
+        except WebSocketError as err:
+            __logger.exception(err)
             __handle_disconnect(wsock)
             return
+
+
+def __get_json_msg(wsock):
+    msg = wsock.receive()
+    __logger.debug('Received message %s', msg)
+    return json.loads(msg) if msg else msg
 
 
 def __handle_disconnect(wsock):
