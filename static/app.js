@@ -1,5 +1,3 @@
-//import { isKeyDown } from "./modules/keyboard.js";
-
 $(document).ready(function() {
 
     var colorLookup = {
@@ -22,7 +20,7 @@ $(document).ready(function() {
 
             ws.onmessage = function(evt) {
                 var msg = JSON.parse(evt.data);
-                $("#roomCode").html("Room Code: " + msg.room);
+                $("#roomCode").html(`Room Code: ${msg.room}`);
 
                 ws.onmessage = onMsg;
             }
@@ -49,12 +47,12 @@ $(document).ready(function() {
 
     function createWebSocket() {
         var protocol = window.location.protocol == "https:" ? "wss" : "ws";
-        var url = protocol + "://" + window.location.host + "/websocket";
+        var url = `${protocol}://${window.location.host}/websocket`;
         return new WebSocket(url);
     }
 
     function addPlayer(playerName, color) {
-        $("#playerList").append($("<li class=\"list-group-item text-white fong-weight-bold bg-" + color + "\">" + playerName + "</li>"))
+        $("#playerList").append($(`<li class="list-group-item text-white fong-weight-bold bg-${color}">${playerName}</li>`))
     }
 
     function resetPlayerList(players) {
