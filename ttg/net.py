@@ -1,9 +1,3 @@
-"""
-netcode
-
-deals with sending and receiving messages on websockets
-"""
-
 from collections import defaultdict
 from logging import getLogger
 import json
@@ -11,11 +5,7 @@ import json
 from geventwebsocket import WebSocketError
 
 from ttg.room import create_room
-from ttg.room import get_player
 from ttg.room import get_room
-from ttg.room import join_room
-from ttg.room import leave_room
-from ttg.room import process_entities_json
 
 
 __wsock_lookup = {}
@@ -38,10 +28,7 @@ def new_connection_established(wsock):
         }))
         __broadcast_player_list(room_code)
     elif msg['msg'] == 'join-game':
-        room_code = msg['room']
-        join_room(name, room_code)
-        __add_player(name, room_code, wsock)
-        __broadcast_player_list(room_code)
+        __handle_join_game(name, msg['room'], wsock)
     else:
         wsock.close()
         return
@@ -63,9 +50,27 @@ def __get_json_msg(wsock):
     return json.loads(msg) if msg else msg
 
 
+def __handle_join_game(name, room_code, wsock):
+    # add player to room itself
+    room = get_room(room_code)
+    room.add_player(name)
+
+    # update netcode lookup maps
+    __add_player(name, room_code, wsock)
+    __broadcast_player_list(room_code)
+
+    # send entity list
+    room = get_room(room_code)
+    msg = json.dumps({
+        'msg': 'new-entities',
+        'entities': [__serialize_entity(x) for x in room.entities.values()]
+    })
+    wsock.send(msg)
+
+
 def __handle_msg(name, room_code, msg):
     if msg['msg'] == 'load-entities':
-        __handle_msg_load_entities(name, room_code, msg['entity-defs'])
+        __handle_msg_load_entities(room_code, msg['entity-defs'])
     elif msg['msg'] == 'start-interact':
         __handle_msg_start_interact(name, room_code, msg['entity'])
     else:
@@ -84,33 +89,55 @@ def __handle_msg_start_interact(name, room_code, entity_id):
         __broadcast(room_code, msg)
 
 
-def __handle_msg_load_entities(name, room_code, entity_defs):
-    new_entities = process_entities_json(room_code, entity_defs)
+def __handle_msg_load_entities(room_code, entity_defs):
+    room = get_room(room_code)
+    new_entities = room.process_entity_defs(entity_defs)
     msg = json.dumps({
         'msg': 'new-entities',
-        'entities': [x.__dict__ for x in new_entities]
+        'entities': [__serialize_entity(x) for x in new_entities]
     })
     __broadcast(room_code, msg)
 
 
 def __handle_disconnect(wsock):
     room_code, name = __wsock_lookup[wsock]
-    leave_room(name, room_code)
+
+    # remove player from room
+    room = get_room(room_code)
+    room.remove_player(name)
+
+    # remove player from our lookup maps
     __remove_player(name, room_code, wsock)
+
+    # send new player list to everyone else in room
     __broadcast_player_list(room_code)
 
 
 def __broadcast_player_list(room_code):
-    players = {}
-    for player_name in __rooms[room_code]:
-        player = get_player(room_code, player_name)
-        players[player_name] = {'color': player.color}
-
+    room = get_room(room_code)
     msg = json.dumps({
         'msg': 'player-list',
-        'players': players
+        'players': [__serialize_player(x) for x in room.players.values()]
     })
     __broadcast(room_code, msg)
+
+
+def __serialize_player(player):
+    return {
+        'name':  player.name,
+        'color': player.color
+    }
+
+
+def __serialize_entity(entity):
+    return {
+        'identifier': entity.identifier,
+        'pos_x':      entity.pos_x,
+        'pos_y':      entity.pos_y,
+        'width':      entity.width,
+        'height':     entity.height,
+        'img':        entity.img
+    }
 
 
 def __broadcast(room_code, msg):

@@ -1,7 +1,3 @@
-"""
-When module ttg is executed start a wsgi web server
-"""
-
 import os
 
 from geventwebsocket import WebSocketServer

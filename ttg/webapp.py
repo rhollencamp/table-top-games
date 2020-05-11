@@ -1,7 +1,3 @@
-"""
-Bottle WSGI webapp
-"""
-
 from bottle import abort
 from bottle import request
 from bottle import static_file

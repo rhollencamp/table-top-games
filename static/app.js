@@ -34,8 +34,8 @@ $(document).ready(function() {
                         "img": "/static/test/chess-pawn.svg",
                         "width": 100,
                         "height": 100,
-                        "x": 0,
-                        "y": 0
+                        "pos_x": 0,
+                        "pos_y": 0
                     }]
                 }));
             }
@@ -72,14 +72,14 @@ $(document).ready(function() {
 
     function resetPlayerList(players) {
         $("#playerList").empty();
-        for (let [name, props] of Object.entries(players)) {
-            addPlayer(name, colorLookup[props["color"]]);
-        }
+        players.forEach(function(player) {
+            addPlayer(player.name, colorLookup[player.color]);
+        });
     }
 
     function receiveNewEntities(entities) {
         entities.forEach(function(entity) {
-            $("#playingArea").append($(`<img id="entity-${entity.identifier}" data-entity-id="${entity.identifier}" src="${entity.url}" width="${entity.width}" height="${entity.height}"></img>`))
+            $("#playingArea").append($(`<img id="entity-${entity.identifier}" data-entity-id="${entity.identifier}" src="${entity.img}" width="${entity.width}" height="${entity.height}"></img>`))
             $(`#entity-${entity.identifier}`).on('mousedown', entityOnMouseDown);
         });
     }
