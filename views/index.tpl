@@ -63,12 +63,12 @@
             </div>
         </div>
 
-        <div class="container-fluid" id="playingArea" style="display: none; height: calc(100% - 1rem);">
+        <div class="container-fluid" id="playingAreaCard" style="display: none; height: calc(100% - 1rem);">
             <div class="row h-100">
                 <div class="col h-100">
                     <div class="card h-100">
-                        <div id="roomCode" class="card-header">Room Code: ABC123</div>
-                        <div class="card-body">
+                        <div id="roomCode" class="card-header"></div>
+                        <div id="playingArea" class="card-body">
                             TODO game goes here :)
                         </div>
                     </div>

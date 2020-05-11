@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-    var colorLookup = {
+    let colorLookup = {
         1: 'primary',
         2: 'secondary',
         3: 'success',
@@ -9,20 +9,35 @@ $(document).ready(function() {
         6: 'info'
     };
 
+    let ws;
+
     $("#startCreateGame").on('click', function(e) {
         e.preventDefault();
 
-        var ws = createWebSocket();
+        ws = createWebSocket();
         ws.onopen = function() {
             ws.send(JSON.stringify({"msg": "create-game", "name": $("#startCreateUserName").val()}));
             $("#startAccordion").hide();
-            $("#playingArea").show();
+            $("#playingAreaCard").show();
 
             ws.onmessage = function(evt) {
-                var msg = JSON.parse(evt.data);
+                let msg = JSON.parse(evt.data);
                 $("#roomCode").html(`Room Code: ${msg.room}`);
 
                 ws.onmessage = onMsg;
+
+                // testing
+                ws.send(JSON.stringify({
+                    "msg": "load-entities",
+                    "entity-defs": [{
+                        "type": "game-piece",
+                        "img": "/static/test/chess-pawn.svg",
+                        "width": 100,
+                        "height": 100,
+                        "x": 0,
+                        "y": 0
+                    }]
+                }));
             }
         }
     });
@@ -30,7 +45,7 @@ $(document).ready(function() {
     $("#startJoinGame").on('click', function(e) {
         e.preventDefault();
 
-        var ws = createWebSocket();
+        ws = createWebSocket();
         ws.onopen = function() {
             ws.send(JSON.stringify({
                 "msg": "join-game",
@@ -38,7 +53,7 @@ $(document).ready(function() {
                 "room": $("#startJoinRoomCode").val()
             }));
             $("#startAccordion").hide();
-            $("#playingArea").show();
+            $("#playingAreaCard").show();
             $("#roomCode").html("Room Code: " + $("#startJoinRoomCode").val());
 
             ws.onmessage = onMsg;
@@ -46,8 +61,8 @@ $(document).ready(function() {
     })
 
     function createWebSocket() {
-        var protocol = window.location.protocol == "https:" ? "wss" : "ws";
-        var url = `${protocol}://${window.location.host}/websocket`;
+        let protocol = window.location.protocol == "https:" ? "wss" : "ws";
+        let url = `${protocol}://${window.location.host}/websocket`;
         return new WebSocket(url);
     }
 
@@ -62,10 +77,31 @@ $(document).ready(function() {
         }
     }
 
+    function receiveNewEntities(entities) {
+        entities.forEach(function(entity) {
+            $("#playingArea").append($(`<img id="entity-${entity.identifier}" data-entity-id="${entity.identifier}" src="${entity.url}" width="${entity.width}" height="${entity.height}"></img>`))
+            $(`#entity-${entity.identifier}`).on('mousedown', entityOnMouseDown);
+        });
+    }
+
     function onMsg(evt) {
-        var msg = JSON.parse(evt.data);
+        let msg = JSON.parse(evt.data);
         if (msg["msg"] == "player-list") {
             resetPlayerList(msg["players"]);
+        } else if (msg["msg"] == "new-entities") {
+            receiveNewEntities(msg["entities"]);
+        } else if (msg["msg"] == "interaction") {
+            let entityId = msg["entity"];
+            let interactingName = msg["name"];
+            let interactingDom = $(`#entity-${entityId}`).addClass('border').addClass('border-primary');
         }
+    }
+
+    function entityOnMouseDown(evt) {
+        let entityId = $(evt.target).data("entity-id");
+        ws.send(JSON.stringify({
+            "msg": "start-interact",
+            "entity": entityId
+        }));
     }
 });

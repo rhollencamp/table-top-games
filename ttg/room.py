@@ -9,6 +9,18 @@ __COLORS = set([1, 2, 3, 4, 5, 6])
 __rooms = {}
 
 
+class Entity:
+    """Object being used in a game"""
+
+    def __init__(self, identifier, pos_x, pos_y, width, height, url):
+        self.identifier = identifier
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.width = width
+        self.height = height
+        self.url = url
+
+
 class Player:
     """State for a player"""
 
@@ -24,12 +36,44 @@ class Room:
     def __init__(self, room_code):
         self.room_code = room_code
         self.players = {}
+        self.entities = {}
+        self.interaction = None
 
     def add_player(self, player: Player):
         self.players[player.name] = player
 
     def remove_player(self, player: Player):
         self.players.pop(player.name)
+
+    def add_entity(self, pos_x, pos_y, width, height, url):
+        identifier = max(self.entities.keys()) + 1 if self.entities else 1
+        entity = Entity(identifier, pos_x, pos_y, width, height, url)
+        self.entities[identifier] = entity
+        return entity
+
+    def start_interaction(self, name, entity_id):
+        if self.interaction is not None:
+            return None
+        self.interaction = name, entity_id
+        return self.interaction
+
+
+def process_entities_json(room_code, entity_defs):
+    room = __rooms[room_code]
+
+    created_entities = []
+    for entity_def in entity_defs:
+        entity = room.add_entity(entity_def['x'],
+                                 entity_def['y'],
+                                 entity_def['width'],
+                                 entity_def['height'],
+                                 entity_def['img'])
+        created_entities.append(entity)
+    return created_entities
+
+
+def get_room(room_code) -> Room:
+    return __rooms[room_code]
 
 
 def get_player(room_code, name):

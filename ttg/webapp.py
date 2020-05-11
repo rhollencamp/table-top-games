@@ -19,9 +19,9 @@ def index():
     return template('index')
 
 
-@app.route('/static/<filename>')
-def server_static(filename):
-    return static_file(filename, root='./static')
+@app.route('/static/<path:path>')
+def server_static(path):
+    return static_file(path, root='./static')
 
 
 @app.route('/websocket')

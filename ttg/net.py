@@ -12,8 +12,10 @@ from geventwebsocket import WebSocketError
 
 from ttg.room import create_room
 from ttg.room import get_player
+from ttg.room import get_room
 from ttg.room import join_room
 from ttg.room import leave_room
+from ttg.room import process_entities_json
 
 
 __wsock_lookup = {}
@@ -50,16 +52,45 @@ def new_connection_established(wsock):
             if msg is None:
                 __handle_disconnect(wsock)
                 break
+            __handle_msg(name, room_code, msg)
         except WebSocketError as err:
             __logger.exception(err)
-            __handle_disconnect(wsock)
-            return
 
 
 def __get_json_msg(wsock):
     msg = wsock.receive()
     __logger.debug('Received message %s', msg)
     return json.loads(msg) if msg else msg
+
+
+def __handle_msg(name, room_code, msg):
+    if msg['msg'] == 'load-entities':
+        __handle_msg_load_entities(name, room_code, msg['entity-defs'])
+    elif msg['msg'] == 'start-interact':
+        __handle_msg_start_interact(name, room_code, msg['entity'])
+    else:
+        raise ValueError('Unexpected message type ' + msg['msg'])
+
+
+def __handle_msg_start_interact(name, room_code, entity_id):
+    room = get_room(room_code)
+    result = room.start_interaction(name, entity_id)
+    if result:
+        msg = json.dumps({
+            'msg': 'interaction',
+            'name': name,
+            'entity': entity_id
+        })
+        __broadcast(room_code, msg)
+
+
+def __handle_msg_load_entities(name, room_code, entity_defs):
+    new_entities = process_entities_json(room_code, entity_defs)
+    msg = json.dumps({
+        'msg': 'new-entities',
+        'entities': [x.__dict__ for x in new_entities]
+    })
+    __broadcast(room_code, msg)
 
 
 def __handle_disconnect(wsock):
