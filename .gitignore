@@ -3,7 +3,7 @@
 *.pyc
 
 ### vs code ###
-settings.json
+.vscode
 
 ### macos ###
 .DS_Store
