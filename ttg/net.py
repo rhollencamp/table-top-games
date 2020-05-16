@@ -74,8 +74,33 @@ def __handle_msg(name, room_code, msg):
         __handle_msg_load_entities(room_code, msg['entity-defs'])
     elif msg['msg'] == 'start-interact':
         __handle_msg_start_interact(name, room_code, msg['entity'])
+    elif msg['msg'] == 'drag-drop-position':
+        __handle_drag_drop_position(name, room_code, msg['x'], msg['y'])
+    elif msg['msg'] == 'stop-interacting':
+        __handle_stop_interacting(name, room_code)
     else:
         raise ValueError('Unexpected message type ' + msg['msg'])
+
+
+def __handle_drag_drop_position(name, room_code, pos_x, pos_y):
+    room = get_room(room_code)
+    entity = room.move_entity(name, pos_x, pos_y)
+    msg = json.dumps({
+        'msg': 'update-entity',
+        'entity': __serialize_entity(entity)
+    })
+    __broadcast(room_code, msg, except_name=name)
+
+
+def __handle_stop_interacting(name, room_code):
+    room = get_room(room_code)
+    _, entity_id = room.stop_interacting(name)
+    msg = json.dumps({
+        'msg': 'stop-interacting',
+        'name': name,
+        'entity': entity_id
+    })
+    __broadcast(room_code, msg)
 
 
 def __handle_msg_start_interact(name, room_code, entity_id):
@@ -141,9 +166,11 @@ def __serialize_entity(entity):
     }
 
 
-def __broadcast(room_code, msg):
+def __broadcast(room_code, msg, except_name=None):
     """broadcast a message to all players in a room"""
-    for _, wsock in __rooms[room_code].items():
+    for name, wsock in __rooms[room_code].items():
+        if except_name and name == except_name:
+            continue
         wsock.send(msg)
 
 

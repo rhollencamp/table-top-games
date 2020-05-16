@@ -19,6 +19,11 @@ function onMsg(evt) {
         ui.renderNewEntities(msg.entities);
     } else if (msg.msg == "interaction") {
         ui.startUserInteraction(msg.entity, msg.name);
+    } else if (msg.msg == 'update-entity') {
+        ui.updateEntity(msg.entity.identifier, msg.entity.pos_x, msg.entity.pos_y);
+        //room.updateEntity(msg.entity.identifier, msg.entity.pos_x, msg.entity.pos_y);
+    } else if (msg.msg == 'stop-interacting') {
+        ui.stopInteracting(msg.name, msg.entity);
     }
 }
 
@@ -77,5 +82,15 @@ export function tryInteract(entityId) {
 }
 
 export function sendDragDropPosition(x, y) {
+    wsock.send(JSON.stringify({
+        'msg': 'drag-drop-position',
+        'x': x,
+        'y': y
+    }));
+}
 
+export function stopInteracting() {
+    wsock.send(JSON.stringify({
+        'msg': 'stop-interacting'
+    }));
 }

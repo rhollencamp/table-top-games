@@ -24,9 +24,17 @@ class Entity:
     def pos_x(self):
         return self.__pos_x
 
+    @pos_x.setter
+    def pos_x(self, new_pos_x):
+        self.__pos_x = new_pos_x
+
     @property
     def pos_y(self):
         return self.__pos_y
+
+    @pos_y.setter
+    def pos_y(self, new_pos_y):
+        self.__pos_y = new_pos_y
 
     @property
     def width(self):
@@ -81,6 +89,18 @@ class Room:
             return None
         self.interaction = name, entity_id
         return self.interaction
+
+    def move_entity(self, name, new_pos_x, new_pos_y):
+        _, entity_id = self.interaction
+        entity = self.entities[entity_id]
+        entity.pos_x = new_pos_x
+        entity.pos_y = new_pos_y
+        return entity
+
+    def stop_interacting(self, name):
+        _, entity_id = self.interaction
+        self.interaction = None
+        return name, entity_id
 
     def process_entity_defs(self, entity_defs):
         created_entities = []

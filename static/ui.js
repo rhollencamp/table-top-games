@@ -47,13 +47,22 @@ export function startUserInteraction(entityId, playerName) {
         $(document).on('mouseup', function() {
             clearInterval(dragDropData.interval);
             $(document).off('mousemove');
+            $(document).off('mouseup');
             dragDropData = {};
+            net.stopInteracting();
         })
     }
 }
 
+export function stopInteracting(name, entityId) {
+    let player = room.getPlayer(name);
+    let color = colorLookup[player.color];
+    $(`#entity-${entityId}`).removeClass('border').removeClass(`border-${color}`);
+    //$(`#entity-${entity.identifier}`).on('mousedown', entityOnMouseDown);
+}
+
 function sendDragDropPosToServer() {
-    net.sendDragDropPosition(dragDropData.left, dragDropData.right);
+    net.sendDragDropPosition(dragDropData.left, dragDropData.top);
 }
 
 function entityOnMouseDown(evt) {
@@ -88,6 +97,13 @@ function entityDragMouseMove(evt) {
     });
 }
 
+export function updateEntity(entityId, x, y) {
+    $(`#entity-${entityId}`).css({
+        'left': x,
+        'top': y
+    });
+}
+
 $(document).ready(function() {
     $("#startCreateGame").on('click', function(e) {
         e.preventDefault();
@@ -105,6 +121,6 @@ $(document).ready(function() {
 
         room.setPlayerName(playerName);
         room.setRoomCode(roomCode);
-        net.joinRoom(room.playerName, roomCode, enterRoom);
+        net.joinRoom(playerName, roomCode, enterRoom);
     });
 });
