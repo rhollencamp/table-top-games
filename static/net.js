@@ -1,3 +1,6 @@
+import * as ui from '/static/ui.js';
+import * as room from '/static/room.js';
+
 let wsock;
 
 function createWebSocket() {
@@ -8,18 +11,18 @@ function createWebSocket() {
 
 function onMsg(evt) {
     let msg = JSON.parse(evt.data);
-    if (msg["msg"] == "player-list") {
-        $(document).trigger("ttg.player-list", [msg["players"]]);
-    } else if (msg["msg"] == "new-entities") {
-        $(document).trigger("ttg.new-entities", [msg["entities"]]);
-    } else if (msg["msg"] == "interaction") {
-        let entityId = msg["entity"];
-        let interactingName = msg["name"];
-        let interactingDom = $(`#entity-${entityId}`).addClass('border').addClass('border-primary');
+    if (msg.msg == 'player-list') {
+        room.updatePlayerList(msg.players);
+        ui.renderPlayerList(msg.players);
+    } else if (msg.msg == 'new-entities') {
+        room.addEntities(msg.entities);
+        ui.renderNewEntities(msg.entities);
+    } else if (msg.msg == "interaction") {
+        ui.startUserInteraction(msg.entity, msg.name);
     }
 }
 
-$(document).on('ttg.create-game', function(e, name) {
+export function createRoom(name, callback) {
     wsock = createWebSocket();
     wsock.onopen = function() {
         wsock.send(JSON.stringify({
@@ -30,7 +33,7 @@ $(document).on('ttg.create-game', function(e, name) {
         wsock.onmessage = function(evt) {
             let msg = JSON.parse(evt.data);
 
-            $(document).trigger('ttg.enter-room', [msg.room]);
+            callback(msg.room);
 
             wsock.onmessage = onMsg;
 
@@ -48,9 +51,9 @@ $(document).on('ttg.create-game', function(e, name) {
             }));
         }
     }
-});
+}
 
-$(document).on('ttg.join-game', function(e, name, roomCode) {
+export function joinRoom(name, roomCode, callback) {
     wsock = createWebSocket();
     wsock.onopen = function() {
         wsock.send(JSON.stringify({
@@ -60,8 +63,19 @@ $(document).on('ttg.join-game', function(e, name, roomCode) {
         }));
 
         // TODO wait for a response?
-        $(document).trigger('ttg.enter-room', [roomCode]);
+        callback(roomCode);
 
         wsock.onmessage = onMsg;
     }
-});
+}
+
+export function tryInteract(entityId) {
+    wsock.send(JSON.stringify({
+        "msg": "start-interact",
+        "entity": entityId
+    }));
+}
+
+export function sendDragDropPosition(x, y) {
+
+}

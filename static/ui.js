@@ -1,3 +1,6 @@
+import * as net from '/static/net.js';
+import * as room from '/static/room.js';
+
 let colorLookup = {
     1: 'primary',
     2: 'secondary',
@@ -7,44 +10,101 @@ let colorLookup = {
     6: 'info'
 };
 
-$(document).on('ttg.enter-room', function(e, roomCode) {
+let dragDropData = {};
+
+function enterRoom(roomCode) {
     $("#startAccordion").hide();
     $("#playingAreaCard").show();
 
     $("#roomCode").html(`Room Code: ${roomCode}`);
-});
+}
 
-$(document).on('ttg.player-list', function(e, players) {
+export function renderPlayerList(players) {
     $("#playerList").empty();
     players.forEach(function(player) {
         let color = colorLookup[player.color];
         $("#playerList").append($(`<li class="list-group-item text-white fong-weight-bold bg-${color}">${player.name}</li>`));
     });
-});
+}
 
-$(document).on("ttg.new-entities", function(e, entities) {
+export function renderNewEntities(entities) {
     entities.forEach(function(entity) {
-        $("#playingArea").append($(`<img id="entity-${entity.identifier}" data-entity-id="${entity.identifier}" src="${entity.img}" width="${entity.width}" height="${entity.height}"></img>`))
+        let style=`position: absolute; top: ${entity.y}; left: ${entity.x}`
+        $("#playingArea").append($(`<img id="entity-${entity.identifier}" data-entity-id="${entity.identifier}" src="${entity.img}" width="${entity.width}" height="${entity.height}" style="${style}"></img>`))
         $(`#entity-${entity.identifier}`).on('mousedown', entityOnMouseDown);
     });
-});
+}
+
+export function startUserInteraction(entityId, playerName) {
+    let player = room.getPlayer(playerName);
+    let color = colorLookup[player.color];
+    $(`#entity-${entityId}`).addClass('border').addClass(`border-${color}`);
+
+    // are we the ones moving the thing?
+    if (playerName == room.getPlayerName()) {
+        $(document).on('mousemove', entityDragMouseMove);
+        dragDropData.interval = setInterval(sendDragDropPosToServer, 100);
+        $(document).on('mouseup', function() {
+            clearInterval(dragDropData.interval);
+            $(document).off('mousemove');
+            dragDropData = {};
+        })
+    }
+}
+
+function sendDragDropPosToServer() {
+    net.sendDragDropPosition(dragDropData.left, dragDropData.right);
+}
 
 function entityOnMouseDown(evt) {
+    evt.preventDefault();
+
     let entityId = $(evt.target).data("entity-id");
-    ws.send(JSON.stringify({
-        "msg": "start-interact",
-        "entity": entityId
-    }));
+
+    dragDropData.x = evt.clientX;
+    dragDropData.y = evt.clientY;
+    dragDropData.dom = $(evt.target);
+    dragDropData.top = parseInt(dragDropData.dom.css('top'));
+    dragDropData.left = parseInt(dragDropData.dom.css('left'));
+
+    net.tryInteract(entityId);
+}
+
+function entityDragMouseMove(evt) {
+    evt.preventDefault();
+
+    let dx = dragDropData.x - evt.clientX;
+    let dy = dragDropData.y - evt.clientY;
+    dragDropData.x = evt.clientX;
+    dragDropData.y = evt.clientY;
+    dragDropData.top -= dy;
+    dragDropData.left -= dx;
+
+    //console.info(`curTop ${curTop} curLeft ${curLeft} dx ${dx} dy ${dy}`);
+
+    dragDropData.dom.css({
+        'top': dragDropData.top,
+        'left': dragDropData.left
+    });
 }
 
 $(document).ready(function() {
     $("#startCreateGame").on('click', function(e) {
         e.preventDefault();
-        $(document).trigger('ttg.create-game', [$("#startCreateUserName").val()])
+
+        let playerName = $("#startCreateUserName").val();
+        room.setPlayerName(playerName);
+        net.createRoom(playerName, enterRoom);
     });
 
     $("#startJoinGame").on('click', function(e) {
         e.preventDefault();
-        $(document).trigger('ttg.join-game', [$("#startJoinUserName").val(), $("#startJoinRoomCode").val()]);
+
+        let playerName = $("#startJoinUserName").val();
+        let roomCode = $("#startJoinRoomCode").val();
+
+        room.setPlayerName(playerName);
+        room.setRoomCode(roomCode);
+        net.joinRoom(room.playerName, roomCode, enterRoom);
     });
 });

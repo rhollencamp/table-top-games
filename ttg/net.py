@@ -28,7 +28,8 @@ def new_connection_established(wsock):
         }))
         __broadcast_player_list(room_code)
     elif msg['msg'] == 'join-game':
-        __handle_join_game(name, msg['room'], wsock)
+        room_code = msg['room']
+        __handle_join_game(name, room_code, wsock)
     else:
         wsock.close()
         return
