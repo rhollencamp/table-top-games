@@ -43,7 +43,7 @@ export function startUserInteraction(entityId, playerName) {
     // are we the ones moving the thing?
     if (playerName == room.getPlayerName()) {
         $(document).on('mousemove', entityDragMouseMove);
-        dragDropData.interval = setInterval(sendDragDropPosToServer, 100);
+        dragDropData.interval = setInterval(sendDragDropPosToServer, 50);
         $(document).on('mouseup', function() {
             clearInterval(dragDropData.interval);
             $(document).off('mousemove');

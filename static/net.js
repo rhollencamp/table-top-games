@@ -42,6 +42,8 @@ export function createRoom(name, callback) {
 
             wsock.onmessage = onMsg;
 
+            setInterval(ping, 30000);
+
             // testing
             wsock.send(JSON.stringify({
                 "msg": "load-entities",
@@ -71,6 +73,8 @@ export function joinRoom(name, roomCode, callback) {
         callback(roomCode);
 
         wsock.onmessage = onMsg;
+
+        setInterval(ping, 30000);
     }
 }
 
@@ -92,5 +96,15 @@ export function sendDragDropPosition(x, y) {
 export function stopInteracting() {
     wsock.send(JSON.stringify({
         'msg': 'stop-interacting'
+    }));
+}
+
+/**
+ * Heroku has a 55 second idle timeout for connections, we send a ping every
+ * 30 seconds to make sure our connections don't get dropped
+ */
+function ping() {
+    wsock.send(JSON.stringify({
+        'msg': 'ping'
     }));
 }

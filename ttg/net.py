@@ -78,6 +78,8 @@ def __handle_msg(name, room_code, msg):
         __handle_drag_drop_position(name, room_code, msg['x'], msg['y'])
     elif msg['msg'] == 'stop-interacting':
         __handle_stop_interacting(name, room_code)
+    elif msg['msg'] == 'ping':
+        pass
     else:
         raise ValueError('Unexpected message type ' + msg['msg'])
 
