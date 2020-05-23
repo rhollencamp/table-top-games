@@ -29,7 +29,7 @@ export function renderPlayerList(players) {
 
 export function renderNewEntities(entities) {
     entities.forEach(function(entity) {
-        let style=`position: absolute; top: ${entity.y}; left: ${entity.x}`
+        let style=`position: absolute; top: ${entity.pos_y}px; left: ${entity.pos_x}px;`
         $("#playingArea").append($(`<img id="entity-${entity.identifier}" data-entity-id="${entity.identifier}" src="${entity.img}" width="${entity.width}" height="${entity.height}" style="${style}"></img>`))
         $(`#entity-${entity.identifier}`).on('mousedown', entityOnMouseDown);
     });
@@ -58,7 +58,6 @@ export function stopInteracting(name, entityId) {
     let player = room.getPlayer(name);
     let color = colorLookup[player.color];
     $(`#entity-${entityId}`).removeClass('border').removeClass(`border-${color}`);
-    //$(`#entity-${entity.identifier}`).on('mousedown', entityOnMouseDown);
 }
 
 function sendDragDropPosToServer() {
@@ -88,8 +87,6 @@ function entityDragMouseMove(evt) {
     dragDropData.y = evt.clientY;
     dragDropData.top -= dy;
     dragDropData.left -= dx;
-
-    //console.info(`curTop ${curTop} curLeft ${curLeft} dx ${dx} dy ${dy}`);
 
     dragDropData.dom.css({
         'top': dragDropData.top,

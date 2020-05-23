@@ -44,18 +44,13 @@ export function createRoom(name, callback) {
 
             setInterval(ping, 30000);
 
-            // testing
-            wsock.send(JSON.stringify({
-                "msg": "load-entities",
-                "entity-defs": [{
-                    "type": "game-piece",
-                    "img": "/static/test/chess-pawn.svg",
-                    "width": 100,
-                    "height": 100,
-                    "pos_x": 0,
-                    "pos_y": 0
-                }]
-            }));
+            // testing -- load checkers
+            $.ajax('/static/test/checkers.json').done(function(data) {
+                wsock.send(JSON.stringify({
+                    "msg": "load-entities",
+                    "entity-defs": data
+                }));
+            });
         }
     }
 }
