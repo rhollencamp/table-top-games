@@ -26,7 +26,7 @@ class Entity:
 
     @pos_x.setter
     def pos_x(self, new_pos_x):
-        self.__pos_x = new_pos_x
+        self.__pos_x = max(new_pos_x, 0)
 
     @property
     def pos_y(self):
@@ -34,7 +34,7 @@ class Entity:
 
     @pos_y.setter
     def pos_y(self, new_pos_y):
-        self.__pos_y = new_pos_y
+        self.__pos_y = max(new_pos_y, 0)
 
     @property
     def width(self):

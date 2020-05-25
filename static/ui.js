@@ -89,8 +89,8 @@ function entityDragMouseMove(evt) {
     dragDropData.left -= dx;
 
     dragDropData.dom.css({
-        'top': dragDropData.top,
-        'left': dragDropData.left
+        'top': Math.max(dragDropData.top, 0),
+        'left': Math.max(dragDropData.left, 0)
     });
 }
 
