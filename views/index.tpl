@@ -11,7 +11,7 @@
 <body>
 
 <div class="container-fluid h-100 d-flex flex-column" style="padding: 0;">
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-5 flex-shrink-0">
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark flex-shrink-0">
         <a class="navbar-brand" href="/">Table-Top.games</a>
     </nav>
 
@@ -63,12 +63,12 @@
             </div>
         </div>
 
-        <div class="container-fluid" id="playingAreaCard" style="display: none; height: calc(100% - 1rem);">
+        <div class="container-fluid" id="playingAreaCard">
             <div class="row h-100">
                 <div class="col h-100">
                     <div class="card h-100">
                         <div id="roomCode" class="card-header"></div>
-                        <div id="playingArea" class="card-body" style="position: relative; overflow: scroll;"></div>
+                        <div id="playingArea" class="card-body"></div>
                     </div>
                 </div>
                 <div class="col-2">

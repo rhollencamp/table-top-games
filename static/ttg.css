@@ -1,3 +1,18 @@
 html, body {
     height: 100%;
 }
+
+nav {
+    margin-bottom: 1rem;
+}
+
+#playingAreaCard {
+    display: none;
+    margin-bottom: 1rem;
+}
+
+#playingArea {
+    position: relative;
+    overflow: auto;
+    padding: 0;
+}
