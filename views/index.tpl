@@ -29,7 +29,7 @@
                     <div class="card-body">
                         <form>
                             <div class="form-group">
-                                <label for="startCreateUserName">Name</label>
+                                <label for="startCreateUserName">Player Name</label>
                                 <input type="text" class="form-control" id="startCreateUserName">
                             </div>
                             <button type="submit" class="btn btn-primary" id="startCreateGame">Play</button>
@@ -49,7 +49,7 @@
                     <div class="card-body">
                         <form>
                             <div class="form-group">
-                                <label for="startJoinUserName">Name</label>
+                                <label for="startJoinUserName">Player Name</label>
                                 <input type="text" class="form-control" id="startJoinUserName">
                             </div>
                             <div class="form-group">
