@@ -15,6 +15,7 @@ class Entity:
         self.__width = entity_def['width']
         self.__height = entity_def['height']
         self.__img = entity_def['img']
+        self.__interactable = entity_def.get('interactable', True)
 
     @property
     def identifier(self):
@@ -47,6 +48,10 @@ class Entity:
     @property
     def img(self):
         return self.__img
+
+    @property
+    def interactable(self):
+        return self.__interactable
 
 
 class Player:
@@ -85,8 +90,15 @@ class Room:
         self.players.pop(name)
 
     def start_interaction(self, name, entity_id):
+        # one interaction at a time
         if self.interaction is not None:
             return None
+
+        # make sure entity is interactable
+        entity = self.entities[entity_id]
+        if not entity.interactable:
+            return None
+
         self.interaction = name, entity_id
         return self.interaction
 
