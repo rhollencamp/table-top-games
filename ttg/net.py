@@ -2,7 +2,7 @@ from collections import defaultdict
 from logging import getLogger
 import json
 
-from geventwebsocket import WebSocketError
+from websockets.exceptions import ConnectionClosed
 
 from ttg.room import create_room
 from ttg.room import get_room
@@ -13,52 +13,54 @@ __rooms = defaultdict(dict)
 __logger = getLogger(__name__)
 
 
-def new_connection_established(wsock):
+async def new_connection_established(wsock):
     """called when a new websocket is opened"""
 
     # first message: are they creating or joining a room
-    msg = __get_json_msg(wsock)
+    msg = await __get_json_msg(wsock)
     name = msg['name']
     if msg['msg'] == 'create-game':
         room_code = create_room(name)
         __add_player(name, room_code, wsock)
-        wsock.send(json.dumps({
+        await wsock.send(json.dumps({
             'msg': 'room-created',
             'room': room_code
         }))
-        __broadcast_player_list(room_code)
+        await __broadcast_player_list(room_code)
     elif msg['msg'] == 'join-game':
         room_code = msg['room']
-        __handle_join_game(name, room_code, wsock)
+        await __handle_join_game(name, room_code, wsock)
     else:
         wsock.close()
         return
 
     while True:
-        try:
-            msg = __get_json_msg(wsock)
-            if msg is None:
-                __handle_disconnect(wsock)
-                break
-            __handle_msg(name, room_code, msg)
-        except WebSocketError as err:
-            __logger.exception(err)
+        msg = await __get_json_msg(wsock)
+        if msg is None:
+            await __handle_disconnect(wsock)
+            break
+        await __handle_msg(name, room_code, msg)
 
 
-def __get_json_msg(wsock):
-    msg = wsock.receive()
-    __logger.debug('Received message %s', msg)
-    return json.loads(msg) if msg else msg
+async def __get_json_msg(wsock):
+    try:
+        msg = await wsock.recv()
+        __logger.debug('Received message %s', msg)
+        return json.loads(msg) if msg else msg
+    except ConnectionClosed:
+        room_code, name = __wsock_lookup[wsock]
+        __logger.debug('Websocket closed for %s %s', room_code, name)
+        return None
 
 
-def __handle_join_game(name, room_code, wsock):
+async def __handle_join_game(name, room_code, wsock):
     # add player to room itself
     room = get_room(room_code)
     room.add_player(name)
 
     # update netcode lookup maps
     __add_player(name, room_code, wsock)
-    __broadcast_player_list(room_code)
+    await __broadcast_player_list(room_code)
 
     # send entity list
     room = get_room(room_code)
@@ -66,35 +68,35 @@ def __handle_join_game(name, room_code, wsock):
         'msg': 'new-entities',
         'entities': [__serialize_entity(x) for x in room.entities.values()]
     })
-    wsock.send(msg)
+    await wsock.send(msg)
 
 
-def __handle_msg(name, room_code, msg):
+async def __handle_msg(name, room_code, msg):
     if msg['msg'] == 'load-entities':
-        __handle_msg_load_entities(room_code, msg['entity-defs'])
+        await __handle_msg_load_entities(room_code, msg['entity-defs'])
     elif msg['msg'] == 'start-interact':
-        __handle_msg_start_interact(name, room_code, msg['entity'])
+        await __handle_msg_start_interact(name, room_code, msg['entity'])
     elif msg['msg'] == 'drag-drop-position':
-        __handle_drag_drop_position(name, room_code, msg['x'], msg['y'])
+        await __handle_drag_drop_position(name, room_code, msg['x'], msg['y'])
     elif msg['msg'] == 'stop-interacting':
-        __handle_stop_interacting(name, room_code)
+        await __handle_stop_interacting(name, room_code)
     elif msg['msg'] == 'ping':
         pass
     else:
         raise ValueError('Unexpected message type ' + msg['msg'])
 
 
-def __handle_drag_drop_position(name, room_code, pos_x, pos_y):
+async def __handle_drag_drop_position(name, room_code, pos_x, pos_y):
     room = get_room(room_code)
     entity = room.move_entity(name, pos_x, pos_y)
     msg = json.dumps({
         'msg': 'update-entity',
         'entity': __serialize_entity(entity)
     })
-    __broadcast(room_code, msg, except_name=name)
+    await __broadcast(room_code, msg, except_name=name)
 
 
-def __handle_stop_interacting(name, room_code):
+async def __handle_stop_interacting(name, room_code):
     room = get_room(room_code)
     _, entity_id = room.stop_interacting(name)
     msg = json.dumps({
@@ -102,10 +104,10 @@ def __handle_stop_interacting(name, room_code):
         'name': name,
         'entity': entity_id
     })
-    __broadcast(room_code, msg)
+    await __broadcast(room_code, msg)
 
 
-def __handle_msg_start_interact(name, room_code, entity_id):
+async def __handle_msg_start_interact(name, room_code, entity_id):
     room = get_room(room_code)
     result = room.start_interaction(name, entity_id)
     if result:
@@ -114,20 +116,20 @@ def __handle_msg_start_interact(name, room_code, entity_id):
             'name': name,
             'entity': entity_id
         })
-        __broadcast(room_code, msg)
+        await __broadcast(room_code, msg)
 
 
-def __handle_msg_load_entities(room_code, entity_defs):
+async def __handle_msg_load_entities(room_code, entity_defs):
     room = get_room(room_code)
     new_entities = room.process_entity_defs(entity_defs)
     msg = json.dumps({
         'msg': 'new-entities',
         'entities': [__serialize_entity(x) for x in new_entities]
     })
-    __broadcast(room_code, msg)
+    await __broadcast(room_code, msg)
 
 
-def __handle_disconnect(wsock):
+async def __handle_disconnect(wsock):
     room_code, name = __wsock_lookup[wsock]
 
     # remove player from room
@@ -138,16 +140,16 @@ def __handle_disconnect(wsock):
     __remove_player(name, room_code, wsock)
 
     # send new player list to everyone else in room
-    __broadcast_player_list(room_code)
+    await __broadcast_player_list(room_code)
 
 
-def __broadcast_player_list(room_code):
+async def __broadcast_player_list(room_code):
     room = get_room(room_code)
     msg = json.dumps({
         'msg': 'player-list',
         'players': [__serialize_player(x) for x in room.players.values()]
     })
-    __broadcast(room_code, msg)
+    await __broadcast(room_code, msg)
 
 
 def __serialize_player(player):
@@ -168,12 +170,12 @@ def __serialize_entity(entity):
     }
 
 
-def __broadcast(room_code, msg, except_name=None):
+async def __broadcast(room_code, msg, except_name=None):
     """broadcast a message to all players in a room"""
     for name, wsock in __rooms[room_code].items():
         if except_name and name == except_name:
             continue
-        wsock.send(msg)
+        await wsock.send(msg)
 
 
 def __add_player(name, room_code, wsock):

@@ -1,29 +1,26 @@
-from bottle import abort
-from bottle import request
-from bottle import static_file
-from bottle import template
-from bottle import Bottle
+from sanic import Sanic
 
 from ttg.net import new_connection_established
 
 
-app = Bottle()
+__sanic_log_config = dict(
+    version=1,
+    disable_existing_loggers=False,
+    loggers={
+        "sanic.root": {"level": "INFO"},
+        "sanic.error": {"level": "INFO"},
+        "sanic.access": {"level": "INFO"},
+    }
+)
 
+app = Sanic(__name__, log_config=__sanic_log_config)
 
-@app.get('/')
-def index():
-    return template('index')
+# home / index
+app.static('/', './static/index.html')
 
+# static directory
+app.static('/static', './static')
 
-@app.route('/static/<path:path>')
-def server_static(path):
-    return static_file(path, root='./static')
-
-
-@app.route('/websocket')
-def handle_websocket():
-    wsock = request.environ.get('wsgi.websocket')
-    if not wsock:
-        abort(400, 'Expected WebSocket request.')
-
-    new_connection_established(wsock)
+@app.websocket('/websocket')
+async def feed(request, wsock):
+    await new_connection_established(wsock)

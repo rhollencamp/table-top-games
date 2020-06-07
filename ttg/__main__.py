@@ -1,10 +1,9 @@
 import os
 
-from geventwebsocket import WebSocketServer
-
 from ttg.webapp import app
 
 
-server = WebSocketServer(('0.0.0.0', int(os.environ['PORT'])),
-                         app)
-server.serve_forever()
+app.run(host="0.0.0.0",
+        port=int(os.environ['PORT']),
+        access_log=False,
+        debug=False)
