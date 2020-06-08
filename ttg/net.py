@@ -2,7 +2,7 @@ from collections import defaultdict
 from logging import getLogger
 import json
 
-from websockets.exceptions import ConnectionClosed
+from sanic.websocket import ConnectionClosed
 
 from ttg.room import create_room
 from ttg.room import get_room
@@ -47,9 +47,9 @@ async def __get_json_msg(wsock):
         msg = await wsock.recv()
         __logger.debug('Received message %s', msg)
         return json.loads(msg) if msg else msg
-    except ConnectionClosed:
+    except ConnectionClosed as e:
         room_code, name = __wsock_lookup[wsock]
-        __logger.debug('Websocket closed for %s %s', room_code, name)
+        __logger.debug('Websocket closed for %s %s', room_code, name, exc_info=e)
         return None
 
 

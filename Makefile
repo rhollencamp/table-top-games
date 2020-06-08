@@ -4,6 +4,10 @@ PY=.venv/bin/python3
 run:
 	PORT=8080 $(PY) -m ttg
 
+.PHONY: debug
+debug:
+	TTG_LOG_LEVEL=DEBUG PORT=8080 $(PY) -m ttg
+
 .PHONY: test
 test:
 	$(PY) -m unittest
