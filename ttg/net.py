@@ -17,22 +17,31 @@ async def new_connection_established(wsock):
     """called when a new websocket is opened"""
 
     # first message: are they creating or joining a room
-    msg = await __get_json_msg(wsock)
-    name = msg['name']
-    if msg['msg'] == 'create-game':
-        room_code = create_room(name)
-        __add_player(name, room_code, wsock)
+    try:
+        msg = await __get_json_msg(wsock)
+        name = msg['name']
+        if msg['msg'] == 'create-game':
+            room_code = create_room(name)
+            __add_player(name, room_code, wsock)
+            await wsock.send(json.dumps({
+                'msg': 'room-created',
+                'room': room_code
+            }))
+            await __broadcast_player_list(room_code)
+        elif msg['msg'] == 'join-game':
+            room_code = msg['room']
+            await __handle_join_game(name, room_code, wsock)
+        else:
+            wsock.close()
+            return
+    except ValueError as err:
+        # TODO need to make sure we clean up
         await wsock.send(json.dumps({
-            'msg': 'room-created',
-            'room': room_code
+            'msg': 'error',
+            'details': str(err)
         }))
-        await __broadcast_player_list(room_code)
-    elif msg['msg'] == 'join-game':
-        room_code = msg['room']
-        await __handle_join_game(name, room_code, wsock)
-    else:
-        wsock.close()
         return
+
 
     while True:
         msg = await __get_json_msg(wsock)
@@ -47,9 +56,12 @@ async def __get_json_msg(wsock):
         msg = await wsock.recv()
         __logger.debug('Received message %s', msg)
         return json.loads(msg) if msg else msg
-    except ConnectionClosed as e:
+    except ConnectionClosed as err:
         room_code, name = __wsock_lookup[wsock]
-        __logger.debug('Websocket closed for %s %s', room_code, name, exc_info=e)
+        __logger.debug('Websocket closed for %s %s',
+                       room_code,
+                       name,
+                       exc_info=err)
         return None
 
 

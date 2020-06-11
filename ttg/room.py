@@ -1,7 +1,9 @@
 import random
+import re
 import string
 
 COLORS = set([1, 2, 3, 4, 5, 6])
+VALID_NAME_RE = re.compile('^[a-zA-Z0-9_-]{3,15}$')
 __rooms = {}
 
 
@@ -80,8 +82,12 @@ class Room:
         self.interaction = None
 
     def add_player(self, name):
+        # validate player name
+        if not VALID_NAME_RE.match(name):
+            raise ValueError('Invalid player name')
+
         if name in self.players:
-            raise ValueError('Player already in room')
+            raise ValueError('Player with this name already in room')
 
         player = Player(name, self.__get_unused_color())
         self.players[name] = player
@@ -102,7 +108,7 @@ class Room:
         self.interaction = name, entity_id
         return self.interaction
 
-    def move_entity(self, name, new_pos_x, new_pos_y):
+    def move_entity(self, _, new_pos_x, new_pos_y):
         _, entity_id = self.interaction
         entity = self.entities[entity_id]
         entity.pos_x = new_pos_x

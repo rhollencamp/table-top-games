@@ -21,6 +21,7 @@ app.static('/', './static/index.html')
 # static directory
 app.static('/static', './static')
 
+
 @app.websocket('/websocket')
-async def feed(request, wsock):
+async def feed(_, wsock):
     await new_connection_established(wsock)
