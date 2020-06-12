@@ -3,24 +3,36 @@ from sanic import Sanic
 from ttg.net import new_connection_established
 
 
-__sanic_log_config = dict(
-    version=1,
-    disable_existing_loggers=False,
-    loggers={
-        "sanic.root": {"level": "INFO"},
-        "sanic.error": {"level": "INFO"},
-        "sanic.access": {"level": "INFO"},
-    }
-)
+def _create_sanic_web_config():
+    """
+    Sanic log configuration to avoid duplicate messages
 
-app = Sanic(__name__, log_config=__sanic_log_config)
+    Default log configuration Sanic uses has handlers set up that causes
+    messages to be logged twice, so pass in a minimal config of our own to
+    avoid those handlers being created / used
+    """
 
-# home / index
-app.static('/', './static/index.html')
+    return dict(
+        version=1,
+        disable_existing_loggers=False,
+        loggers={
+            "sanic.root": {"level": "INFO"},
+            "sanic.error": {"level": "INFO"},
+            "sanic.access": {"level": "INFO"},
+        }
+    )
 
-# static directory
-app.static('/static', './static')
 
-@app.websocket('/websocket')
-async def feed(request, wsock):
+async def _websocket(_, wsock):
+    """handler for new websocket connections"""
     await new_connection_established(wsock)
+
+
+app = Sanic(__name__, log_config=_create_sanic_web_config())
+
+# home / index static route
+app.static('/', './static/index.html')
+# static assets route
+app.static('/static', './static')
+# websocket route
+app.add_websocket_route(_websocket, '/websocket')

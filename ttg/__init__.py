@@ -4,9 +4,11 @@ import logging
 
 
 # set up logging
-__logging_handler = logging.StreamHandler(stdout)
-__logging_handler.setLevel(logging.DEBUG)
-logging.basicConfig(level=logging.WARN, handlers=[__logging_handler])
+logging_handler = logging.StreamHandler(stdout)
+logging_handler.setLevel(logging.DEBUG)
+logging.basicConfig(level=logging.WARN, handlers=[logging_handler])
+del logging_handler
 
-# set up the root TTG logger
+# Logging level for TTG module can be controlled by an ENV var TTG_LOG_LEVEL
+# If not specified it will default to WARNING
 logging.getLogger(__name__).setLevel(getenv('TTG_LOG_LEVEL', 'WARNING'))
