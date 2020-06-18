@@ -80,6 +80,28 @@
             </div>
         </div>
     </div>
+
+    <!--
+      - modal for choosing game to play
+      -->
+    <div class="modal fade" id="choose-game-modal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Choose A Game</h5>
+                </div>
+
+                <div class="modal-body">
+                    <select class="form-control">
+                        <option value="/static/test/checkers.json" selected>Checkers</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">Play!</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>

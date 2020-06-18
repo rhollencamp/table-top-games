@@ -43,14 +43,6 @@ export function createRoom(name, callback) {
             wsock.onmessage = onMsg;
 
             setInterval(ping, 30000);
-
-            // testing -- load checkers
-            $.ajax('/static/test/checkers.json').done(function(data) {
-                wsock.send(JSON.stringify({
-                    "msg": "load-entities",
-                    "entity-defs": data
-                }));
-            });
         }
     }
 }
@@ -71,6 +63,15 @@ export function joinRoom(name, roomCode, callback) {
 
         setInterval(ping, 30000);
     }
+}
+
+export function loadEntities(url) {
+    $.ajax(url).done(function(data) {
+        wsock.send(JSON.stringify({
+            "msg": "load-entities",
+            "entity-defs": data
+        }));
+    });
 }
 
 export function tryInteract(entityId) {

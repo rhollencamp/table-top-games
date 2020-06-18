@@ -107,7 +107,11 @@ $(document).ready(function() {
 
         let playerName = $("#startCreateUserName").val();
         room.setPlayerName(playerName);
-        net.createRoom(playerName, enterRoom);
+        net.createRoom(playerName, function(roomCode) {
+            enterRoom(roomCode);
+
+            $('#choose-game-modal').modal('show');
+        });
     });
 
     $("#startJoinGame").on('click', function(e) {
@@ -119,5 +123,11 @@ $(document).ready(function() {
         room.setPlayerName(playerName);
         room.setRoomCode(roomCode);
         net.joinRoom(playerName, roomCode, enterRoom);
+    });
+
+    $('#choose-game-modal button').on('click', function(e) {
+        let url = $('#choose-game-modal select').val();
+        net.loadEntities(url);
+        $('#choose-game-modal').modal('hide');
     });
 });
