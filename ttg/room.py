@@ -132,7 +132,7 @@ class Room:
 
     def process_entity_defs(self, entity_defs):
         created_entities = []
-        for entity_def in entity_defs:
+        for entity_def in entity_defs["entities"]:
             entity = Entity(self._next_identifier(), entity_def)
             self._entities[entity.identifier] = entity
             created_entities.append(entity)
