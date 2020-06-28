@@ -35,3 +35,29 @@ class TestRoom(TestCase):
             self.assertEqual(2, entity.height)
             self.assertEqual(3, entity.pos_x)
             self.assertEqual(4, entity.pos_y)
+
+    def test_add_entity_with_template(self):
+        """test adding an entity that uses an entity definition"""
+
+        room = Room("ABC123")
+        room.process_entity_defs({
+            "templates": {
+                "test": {
+                    "img": "test",
+                    "width": 1,
+                    "height": 2,
+                    "pos_x": 3,
+                    "pos_y": 4
+                }
+            },
+            "entities": [{
+                "template": "test"
+            }]})
+
+        self.assertEqual(1, len(room.entities))
+        for entity in room.entities.values():
+            self.assertEqual("test", entity.img)
+            self.assertEqual(1, entity.width)
+            self.assertEqual(2, entity.height)
+            self.assertEqual(3, entity.pos_x)
+            self.assertEqual(4, entity.pos_y)

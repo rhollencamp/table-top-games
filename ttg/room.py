@@ -1,21 +1,22 @@
 import random
 import string
 
-_COLORS = set([1, 2, 3, 4, 5, 6])
+_COLORS = {1, 2, 3, 4, 5, 6}
 _ROOMS = {}
 
 
 class Entity:
     """Object being used in a game"""
 
-    def __init__(self, identifier, entity_def):
+    def __init__(self, identifier, entity_def, template):
         self._identifier = identifier
-        self._pos_x = entity_def['pos_x']
-        self._pos_y = entity_def['pos_y']
-        self._width = entity_def['width']
-        self._height = entity_def['height']
-        self._img = entity_def['img']
-        self._interactable = entity_def.get('interactable', True)
+        self._pos_x = self._get_attr('pos_x', entity_def, template)
+        self._pos_y = self._get_attr('pos_y', entity_def, template)
+        self._width = self._get_attr('width', entity_def, template)
+        self._height = self._get_attr('height', entity_def, template)
+        self._img = self._get_attr('img', entity_def, template)
+        self._interactable = self._get_attr('interactable', entity_def,
+                                            template, default=True)
 
     @property
     def identifier(self):
@@ -53,6 +54,17 @@ class Entity:
     def interactable(self):
         return self._interactable
 
+    @staticmethod
+    def _get_attr(key, entity_def, template, **kwargs):
+        try:
+            return entity_def[key]
+        except KeyError:
+            if template and key in template:
+                return template[key]
+            if 'default' in kwargs:
+                return kwargs['default']
+            raise ValueError()
+
 
 class Player:
     """State for a player"""
@@ -76,6 +88,7 @@ class Room:
     def __init__(self, room_code):
         self._room_code = room_code
         self._players = {}
+        self._templates = {}
         self._entities = {}
         self._interaction = None
 
@@ -131,9 +144,19 @@ class Room:
         return name, entity_id
 
     def process_entity_defs(self, entity_defs):
+        if 'templates' in entity_defs:
+            for name, template in entity_defs["templates"].items():
+                if name in self._templates:
+                    raise ValueError()
+                self._templates[name] = template
+
         created_entities = []
         for entity_def in entity_defs["entities"]:
-            entity = Entity(self._next_identifier(), entity_def)
+            try:
+                template = self._templates[entity_def["template"]]
+            except KeyError:
+                template = None
+            entity = Entity(self._next_identifier(), entity_def, template)
             self._entities[entity.identifier] = entity
             created_entities.append(entity)
         return created_entities
@@ -177,4 +200,4 @@ def _generate_random_code():
     """
     Generate 6 random characters that can be used as a room code
     """
-    return ''.join(random.choice(string.ascii_uppercase) for x in range(6))
+    return ''.join(random.choice(string.ascii_uppercase) for _ in range(6))

@@ -1,4 +1,16 @@
 {
+    "templates": {
+        "black_checker": {
+            "img": "/static/test/checker-black.svg",
+            "width": 64,
+            "height": 64
+        },
+        "red_checker": {
+            "img": "/static/test/checker-red.svg",
+            "width": 64,
+            "height": 64
+        }
+    },
     "entities": [
         {
             "interactable": false,
@@ -9,170 +21,122 @@
             "pos_y": 100
         },
         {
-            "img": "/static/test/checker-black.svg",
-            "width": 64,
-            "height": 64,
+            "template": "black_checker",
             "pos_x": 164,
             "pos_y": 100
         },
         {
-            "img": "/static/test/checker-black.svg",
-            "width": 64,
-            "height": 64,
+            "template": "black_checker",
             "pos_x": 292,
             "pos_y": 100
         },
         {
-            "img": "/static/test/checker-black.svg",
-            "width": 64,
-            "height": 64,
+            "template": "black_checker",
             "pos_x": 420,
             "pos_y": 100
         },
         {
-            "img": "/static/test/checker-black.svg",
-            "width": 64,
-            "height": 64,
+            "template": "black_checker",
             "pos_x": 548,
             "pos_y": 100
         },
         {
-            "img": "/static/test/checker-black.svg",
-            "width": 64,
-            "height": 64,
+            "template": "black_checker",
             "pos_x": 100,
             "pos_y": 164
         },
         {
-            "img": "/static/test/checker-black.svg",
-            "width": 64,
-            "height": 64,
+            "template": "black_checker",
             "pos_x": 228,
             "pos_y": 164
         },
         {
-            "img": "/static/test/checker-black.svg",
-            "width": 64,
-            "height": 64,
+            "template": "black_checker",
             "pos_x": 356,
             "pos_y": 164
         },
         {
-            "img": "/static/test/checker-black.svg",
-            "width": 64,
-            "height": 64,
+            "template": "black_checker",
             "pos_x": 484,
             "pos_y": 164
         },
         {
-            "img": "/static/test/checker-black.svg",
-            "width": 64,
-            "height": 64,
+            "template": "black_checker",
             "pos_x": 164,
             "pos_y": 228
         },
         {
-            "img": "/static/test/checker-black.svg",
-            "width": 64,
-            "height": 64,
+            "template": "black_checker",
             "pos_x": 292,
             "pos_y": 228
         },
         {
-            "img": "/static/test/checker-black.svg",
-            "width": 64,
-            "height": 64,
+            "template": "black_checker",
             "pos_x": 420,
             "pos_y": 228
         },
         {
-            "img": "/static/test/checker-black.svg",
-            "width": 64,
-            "height": 64,
+            "template": "black_checker",
             "pos_x": 548,
             "pos_y": 228
         },
         {
-            "img": "/static/test/checker-red.svg",
-            "width": 64,
-            "height": 64,
+            "template": "red_checker",
             "pos_x": 100,
             "pos_y": 420
         },
         {
-            "img": "/static/test/checker-red.svg",
-            "width": 64,
-            "height": 64,
+            "template": "red_checker",
             "pos_x": 228,
             "pos_y": 420
         },
         {
-            "img": "/static/test/checker-red.svg",
-            "width": 64,
-            "height": 64,
+            "template": "red_checker",
             "pos_x": 356,
             "pos_y": 420
         },
         {
-            "img": "/static/test/checker-red.svg",
-            "width": 64,
-            "height": 64,
+            "template": "red_checker",
             "pos_x": 484,
             "pos_y": 420
         },
         {
-            "img": "/static/test/checker-red.svg",
-            "width": 64,
-            "height": 64,
+            "template": "red_checker",
             "pos_x": 164,
             "pos_y": 484
         },
         {
-            "img": "/static/test/checker-red.svg",
-            "width": 64,
-            "height": 64,
+            "template": "red_checker",
             "pos_x": 292,
             "pos_y": 484
         },
         {
-            "img": "/static/test/checker-red.svg",
-            "width": 64,
-            "height": 64,
+            "template": "red_checker",
             "pos_x": 420,
             "pos_y": 484
         },
         {
-            "img": "/static/test/checker-red.svg",
-            "width": 64,
-            "height": 64,
+            "template": "red_checker",
             "pos_x": 548,
             "pos_y": 484
         },
         {
-            "img": "/static/test/checker-red.svg",
-            "width": 64,
-            "height": 64,
+            "template": "red_checker",
             "pos_x": 100,
             "pos_y": 548
         },
         {
-            "img": "/static/test/checker-red.svg",
-            "width": 64,
-            "height": 64,
+            "template": "red_checker",
             "pos_x": 228,
             "pos_y": 548
         },
         {
-            "img": "/static/test/checker-red.svg",
-            "width": 64,
-            "height": 64,
+            "template": "red_checker",
             "pos_x": 356,
             "pos_y": 548
         },
         {
-            "img": "/static/test/checker-red.svg",
-            "width": 64,
-            "height": 64,
+            "template": "red_checker",
             "pos_x": 484,
             "pos_y": 548
         }
