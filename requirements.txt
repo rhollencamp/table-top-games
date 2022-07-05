@@ -22,7 +22,7 @@ sanic==19.6.3
 six==1.15.0
 toml==0.10.1
 typed-ast==1.4.1
-ujson==3.0.0
+ujson==5.4.0
 urllib3==1.25.9
 uvloop==0.14.0
 websockets==7.0
