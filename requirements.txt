@@ -18,7 +18,7 @@ pylint==2.5.3
 requests==2.23.0
 requests-async==0.5.0
 rfc3986==1.4.0
-sanic==19.6.3
+sanic==20.12.7
 six==1.15.0
 toml==0.10.1
 typed-ast==1.4.1
